@@ -32,23 +32,18 @@ func ValidateFolderEndOfPath(folder Folder) bool {
 	return folder.Paths[pathLength - nameLength:] == folder.Name
 }
 
-/* Validates if all previous folders up to the root folder have previously been seen */
-func validatePathStructure(path string, rootFoldername string, seen map[string]int) error {
-	splitPaths := strings.Split(path, ".")
+/* Validates previous folders have previously been seen */
+func ValidatePathStructure(path string, seen map[string]int) error {
+	splitPaths := strings.Split(path, ".") // Expects current folder to be a child to a previous folder
 	if len(splitPaths) < 2 {
 		return errors.New("Error: invalid file path structure " + path)
 	}
-	for i := len(splitPaths) - 2; i >= 0; i-- { // all previous files must be seen in order for the current path to be valid
-		if _, exists := seen[splitPaths[i]]; exists {
-			if splitPaths[i] == rootFoldername {
-				break
-			}
-			continue
-		} else {
-			return errors.New("Error: path contains unseen folder " + path + " for " + splitPaths[i]) 
-		}
+	/* all previous files must be seen in order for the current path to be valid because we have 
+	sorted the folders, the previous folder must have already been seen */
+	if _, exists := seen[splitPaths[len(splitPaths) - 2]]; exists {
+		return nil
 	}
-	return nil
+	return errors.New("Error: path contains unseen folder " + path + " for " + splitPaths[len(splitPaths) - 2]) 
 }
 
 /* 
@@ -95,7 +90,7 @@ func (f *driver) GetAllChildFolders(orgID uuid.UUID, name string) ([]Folder, err
 					return nil, errors.New("Error: Folder name doesn't match end of path " + f.Paths)
 				}
 
-				err := validatePathStructure(f.Paths, rootFolder.Paths, seen)
+				err := ValidatePathStructure(f.Paths, seen)
 				if err != nil {
 					return nil, err
 				}
