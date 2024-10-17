@@ -22,16 +22,25 @@ func main() {
 	folder.PrettyPrint(orgFolder)
 
 	// example usage of get all child folders
-	res = folder.GetSampleData()
-	folderDriver = folder.NewDriver(res)
-	orgID = uuid.FromStringOrNil("38b9879b-f73b-4b0e-b9d9-4fc4c23643a7")
-
-	rootFolderString := "clear-arclight" // subject to change
-	arcLightChildren, err := folderDriver.GetAllChildFolders(orgID, rootFolderString)
+	rootFolderString := "noble-vixen" // subject to change
+	childFolders, err := folderDriver.GetAllChildFolders(orgID, rootFolderString)
 	if err != nil {
+		fmt.Println("\n")
 		fmt.Println(err)
 	} else {
 		fmt.Println("\n\n Child folders of " + rootFolderString + ":")
-		folder.PrettyPrint(arcLightChildren)
+		folder.PrettyPrint(childFolders)
+	}
+
+	// example use of move folder with sample json, note can use the example scenario json as readme reference
+	sourceName := "nearby-secret"
+	destinationName := "fast-watchmen"
+	switchedFolders, err := folderDriver.MoveFolder(sourceName, destinationName)
+	if err != nil {
+		fmt.Println("\n")
+		fmt.Println(err)
+	} else {
+		fmt.Println("Switched folders")
+		folder.PrettyPrint(switchedFolders)
 	}
 }

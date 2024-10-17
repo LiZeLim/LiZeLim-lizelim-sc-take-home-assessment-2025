@@ -8,7 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// feel free to change how the unit test is structured
 func Test_folder_GetFoldersByOrgID(t *testing.T) {
 	t.Parallel()
 	tests := [...]struct {
@@ -41,6 +40,97 @@ func Test_folder_GetFoldersByOrgID(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			f := folder.NewDriver(tt.folders)
 			get := f.GetFoldersByOrgID(tt.orgID)
+			assert.Equal(t, tt.want, get)
+		})
+	}
+}
+
+func Test_folder_ValidateFilePath(t *testing.T) {
+	t.Parallel()
+	tests := [...]struct {
+		name string
+		path string
+		want bool
+	} {
+		{
+			name: "Root",
+			path: "A",
+			want: true,
+		},
+		{
+			name: "Root & Child",
+			path: "A.B",
+			want: true,
+		},
+		{
+			name: "Root & Child Folder & Child's Folder",
+			path: "A.B.C",
+			want: true,
+		},
+		{
+			name: "Invalid missing ending folder",
+			path: "A.",
+			want: false,
+		},
+		{
+			name: "Invalid missing ending folder with child",
+			path: "A.B.",
+			want: false,
+		},
+		{
+			name: "Numbered folder name",
+			path: "1",
+			want: true,
+		},
+		{
+			name: "Numbered folder name & child",
+			path: "1.2",
+			want: true,
+		},
+		{
+			name: "Empty path",
+			path: "",
+			want: false,
+		},
+		{
+			name: "Just dot",
+			path: ".",
+			want: false,
+		},
+		{
+			name: "dot then folder",
+			path: ".A",
+			want: false,
+		},
+		{
+			name: "Path folder with numbers & letters",
+			path: "A1",
+			want: true,
+		},
+		{
+			name: "Path folder with numbers & letters with child",
+			path: "A1.B2",
+			want: true,
+		},
+		{
+			name: "Path folder a special character",
+			path: "!",
+			want: false,
+		},
+		{
+			name: "Path folder with special characters",
+			path: "A.%",
+			want: false,
+		},
+		{
+			name: "Path folder with consecutive separators",
+			path: "A..B",
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func (t *testing.T) {
+			get := folder.ValidateFilePath(tt.path)
 			assert.Equal(t, tt.want, get)
 		})
 	}
@@ -80,7 +170,7 @@ func Test_folder_ValidateFolderEndOfPath(t *testing.T) {
 	}
 }
 
-func Test_folder_ValidatePathStructure(t *testing.T) {
+func Test_folder_ValidateChildPathStructure(t *testing.T) {
 	t.Parallel()
 
 	tests := [...]struct {
@@ -99,31 +189,31 @@ func Test_folder_ValidatePathStructure(t *testing.T) {
 			name: "Invalid folder path with unseen parent",
 			path: "A.B.C",
 			seen: map[string]int{"A": 1},
-			want: errors.New("Error: path contains unseen folder A.B.C for B"),
+			want: errors.New(folder.ErrUnseenFolder + " A.B.C for B"),
 		},
 		{
 			name: "Invalid short folder path",
 			path: "A",
 			seen: map[string]int{},
-			want: errors.New("Error: invalid file path structure A"),
+			want: errors.New(folder.ErrInvalidFilePathStructure + " A"),
 		},
 		{
 			name: "Edge Case: Empty path",
 			path: "",
 			seen: map[string]int{},
-			want: errors.New("Error: invalid file path structure "),
+			want: errors.New(folder.ErrInvalidFilePathStructure + " "),
 		},
 		{
 			name: "Edge case: Missing child folder path",
 			path: "A.",
 			seen: map[string]int{},
-			want: errors.New("Error: invalid file path structure A."),
+			want: errors.New(folder.ErrInvalidFilePathStructure + " A."),
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func (t *testing.T)  {
-			assert.Equal(t, tt.want, folder.ValidatePathStructure(tt.path, tt.seen))
+			assert.Equal(t, tt.want, folder.ValidateChildPathStructure(tt.path, tt.seen))
 		})
 	}
 }
@@ -197,14 +287,14 @@ func Test_folder_GetAllChildFolders(t *testing.T) {
 			orgID: uuid.Nil,
 			rootFolderName: "A",
 			folders: []folder.Folder{},
-			wantErr: errors.New("Error: Invalid orgID"),
+			wantErr: errors.New(folder.ErrInvalidOrgID),
 		},
 		{
 			name: "No folders in the organization",
 			orgID: uuid.Must(uuid.NewV4()),
 			rootFolderName: "A",
 			folders: []folder.Folder{},
-			wantErr: errors.New("Error: Folder does not exist in the specified organization"),
+			wantErr: errors.New(folder.ErrFolderNotExistsOrg),
 		},
 		{
 			name: "Root folder does not exist",
@@ -214,7 +304,7 @@ func Test_folder_GetAllChildFolders(t *testing.T) {
 				{Name: "A", OrgId: uuid.FromStringOrNil(folder.DefaultOrgID), Paths: "A"},
 				{Name: "B", OrgId: uuid.FromStringOrNil(folder.DefaultOrgID), Paths: "A.B"},
 			},
-			wantErr: errors.New("Error: Folder does not exist"),
+			wantErr: errors.New(folder.ErrFolderNotExist),
 		},
 	}
 	for _, tt := range tests {

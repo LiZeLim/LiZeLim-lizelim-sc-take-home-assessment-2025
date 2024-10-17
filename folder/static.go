@@ -8,7 +8,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime"
-
 	"github.com/gofrs/uuid"
 	"github.com/lucasepe/codename"
 )
@@ -173,3 +172,22 @@ func GetSampleDefaultOrgIDOnlyData() []Folder {
 
 	return folders
 }
+
+// Error messages
+
+// get_folder error messages
+const ErrInvalidFilePath = "Error Invalid file path"
+const ErrInvalidFilePathStructure = "Error: invalid file path structure"
+const ErrUnseenFolder = "Error: path contains unseen folder"
+const ErrInvalidOrgID = "Error: Invalid orgID"
+const ErrFolderNotExistsOrg = "Error: Folder does not exist in the specified organization"
+const ErrFolderNotMatchPathEnd = "Error: Folder name doesn't match end of path"
+const ErrFolderNotExist = "Error: Folder does not exist"
+
+// move folder error messages
+
+const ErrSourceToItself = "Error: Cannot move a folder to itself"
+const ErrSourceNotExists = "Error: source folder does not exist"
+const ErrDestNotExist = "Error: destination folder does not exist"
+const ErrFolderToDiffOrg = "Error: cannot move a folder to a different organization"
+const ErrSourceToChild = "Error: cannot move a folder to a child of itself"

@@ -1,0 +1,37 @@
+[
+    {
+        "name": "alpha",
+        "paths": "alpha",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    },
+    {
+        "name": "bravo",
+        "paths": "alpha.bravo",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    },
+    {
+        "name": "charlie",
+        "paths": "alpha.bravo.charlie",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    },
+    {
+        "name": "delta",
+        "paths": "alpha.delta",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    },
+    {
+        "name": "echo",
+        "paths": "alpha.delta.echo",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    },
+    {
+        "name": "foxtrot",
+        "paths": "foxtrot",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17b"
+    },
+    {
+        "name": "golf",
+        "paths": "golf",
+        "org_id": "c1556e17-b7c0-45a3-a6ae-9546248fb17a"
+    }
+]
